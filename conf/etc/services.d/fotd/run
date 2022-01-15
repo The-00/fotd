@@ -1,0 +1,5 @@
+#!/bin/sh
+NAME="FOTD"
+COMMAND="python3 /fotd/fotd.py"
+
+exec service-handler "$NAME" "$COMMAND"
