@@ -8,8 +8,8 @@ frogsize = 400
 
 app = Bottle()
 
-def generate(size, seed, goodeyes):
-    frog = Frog(size=size, goodeyes=True, seed=seed)
+def generate(size, seed):
+    frog = Frog(size=size, seed=seed)
     return frog.get(size)
 
 @app.get("/api/<seed>/")
@@ -18,7 +18,7 @@ def generate(size, seed, goodeyes):
 @app.get("/api")
 def get_frog( seed=None ):
 
-    frog_img = generate(size=700, seed=seed, goodeyes=True)
+    frog_img = generate(size=700, seed=seed)
 
     if response:
         response.set_header('Content-type', 'image/png')
@@ -34,7 +34,7 @@ def get_frog( seed=None ):
 def get_fotd():
 
     today = datetime.date.today().strftime("%d-%m-%Y")
-    frog_img = generate(size=600, seed=today, goodeyes=True)
+    frog_img = generate(size=600, seed=today)
 
     if response:
         response.set_header('Content-type', 'image/png')
