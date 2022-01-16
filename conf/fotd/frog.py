@@ -125,7 +125,7 @@ class Frog():
                     "x":self.rd(),
                     "y":self.rd()
                 },
-                "model":rd.choice( glob.glob("res/mouths/*.png") ),
+                "model":rd.choice( glob.glob("/fotd/res/mouths/*.png") ),
                 "ratio":self.rd()
             },
             "nose":{
@@ -157,7 +157,7 @@ class Frog():
                     "x":self.rd(),
                     "y":self.rd()
                 },
-                "model":rd.choice( glob.glob("res/hats/*.png") ),
+                "model":rd.choice( glob.glob("/fotd/res/hats/*.png") ),
                 "rotation":self.rd()
             },
             "body":{
