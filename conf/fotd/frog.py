@@ -173,7 +173,9 @@ class Frog():
             }
         }
         
-        use_data = _merge_dictionaries(new_data,data)
+        use_data = new_data
+        if data != {}:
+            use_data = _merge_dictionaries(new_data,data)
 
         return use_data
 
@@ -232,5 +234,4 @@ def _merge_dictionaries(dict1, dict2):
         else:
             if key not in dict2:
                 dict2[key] = val
-
     return dict2

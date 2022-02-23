@@ -21,7 +21,7 @@ Values indication :
 ```
 [-1,1]     : real value value in range [-1,1]    (ex: 0.3)
 ["a","b"]  : choose between "a" or "b"           (ex: "a")
-(r,g,b)    : color in RGB format                 (ex: (200,10,45))
+(r,g,b)    : color in RGB format                 (ex: [200,10,45])
 file(type) : file among /fotd/res/[type]/*.png   (ex: "/fotd/res/mouths/bouche1.png")
 ```
 
