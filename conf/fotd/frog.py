@@ -58,12 +58,11 @@ class Frog():
         Generate the full frog
     '''
 
-    def __init__(self, size=1000, seed=None, data=None):
+    def __init__(self, size=1000, seed=None, data={}):
         self.size = size
         self.data = data
 
-        if self.data == None:
-            self.data = self.generate_data( seed )
+        self.data = self.generate_data( self.data, seed )
 
         self.shape = Body(size, data=self.data)
         self.eyes = Eyes(self.shape.shapeEyes[2], data=self.data)
@@ -73,15 +72,15 @@ class Frog():
 
     def rd(self):
         return (rd.random() * 2) -1
-    
+
     def rd_color(self, around, force):
         return tuple([min(255, max(0, around+rd.randint(0,force)-force//2)) for _ in range(3)])
 
-    def generate_data(self, seed=None):
+    def generate_data(self, data={}, seed=None):
         if seed == None:
             seed = time.time()
         rd.seed( seed )
-        
+
         ge = [">>","<<","oo","OO","..","--","xx","♥♥","  ", "><", "-o", "o-","♥-","-♥", "oO", "Oo", ".o", "o." ,".O", "O.", "o<", ">o", "O<", ">O", "-O", "O-", ".-", "-.", "x.", "xo", "xO", "Ox", "ox", ".x"]
         eyes = rd.choice( ge )
         eye_color_front = self.rd_color(255//3, 100)
@@ -90,13 +89,17 @@ class Frog():
         body_color = self.rd_color(255//2, 255)
         body_outline_color = self.rd_color(255//2, 255)
         cheeks_color = tuple( [ min(255 ,max(0 ,x+rd.randint(-20, 20))) for x in body_color ] )
-        
-        data = {
+
+        eye_x, eye_y= self.rd()*3, self.rd()
+        cheeck_x, cheeck_y= self.rd(), self.rd()
+        turn = self.rd()* 1.5
+
+        new_data = {
             "eye":{
                 "left":{
                     "position": {
-                        "x":self.rd(),
-                        "y":self.rd()
+                        "x":eye_x,
+                        "y":eye_y
                     },
                     "model":eyes[0],
                     "color":{
@@ -106,8 +109,8 @@ class Frog():
                 },
                 "right":{
                     "position": {
-                        "x":self.rd(),
-                        "y":self.rd()
+                        "x":eye_x,
+                        "y":eye_y
                     },
                     "model":eyes[1],
                     "color":{
@@ -116,21 +119,21 @@ class Frog():
                     }
                 },
                 "shape": {
-                    "width":self.rd(),
+                    "width":self.rd()*1.5,
                     "height":self.rd()
                     }
             },
             "mouth":{
                 "position":{
-                    "x":self.rd(),
+                    "x":turn,
                     "y":self.rd()
                 },
                 "model":rd.choice( glob.glob("/fotd/res/mouths/*.png") ),
-                "ratio":self.rd()
+                "ratio":self.rd() / 3
             },
             "nose":{
                 "position":{
-                    "x":self.rd(),
+                    "x":turn,
                     "y":self.rd()
                 },
                 "model":rd.choice(["blush", "small"]),
@@ -139,14 +142,14 @@ class Frog():
             "cheeks":{
                 "left":{
                     "position": {
-                        "x":self.rd(),
-                        "y":self.rd()
+                        "x":-cheeck_x,
+                        "y":cheeck_y
                     },
                 },
                 "right":{
                     "position": {
-                        "x":self.rd(),
-                        "y":self.rd()
+                        "x":cheeck_x,
+                        "y":cheeck_y
                     },
                 },
                 "radius":self.rd(),
@@ -170,7 +173,9 @@ class Frog():
             }
         }
         
-        return data
+        use_data = _merge_dictionaries(new_data,data)
+
+        return use_data
 
 
     def get(self, returnsize):
@@ -211,3 +216,21 @@ class Frog():
         return bg.resize((returnsize,returnsize))
 
 
+
+def _merge_dictionaries(dict1, dict2):
+    """
+    Recursive merge dictionaries.
+
+    :param dict1: Base dictionary to merge.
+    :param dict2: Dictionary to merge on top of base dictionary.
+    :return: Merged dictionary
+    """
+    for key, val in dict1.items():
+        if isinstance(val, dict):
+            dict2_node = dict2.setdefault(key, {})
+            _merge_dictionaries(val, dict2_node)
+        else:
+            if key not in dict2:
+                dict2[key] = val
+
+    return dict2

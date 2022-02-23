@@ -14,7 +14,7 @@ class Nose():
     def __init__(self, size, data):
         self.size = int(size/15)
         self.data = data
-        self.color = self.data["nose"]["color"]
+        self.color = tuple(self.data["nose"]["color"])
         
         self.im = Image.new("RGBA", (self.size,self.size//2), "#0000")
         self.draw = ImageDraw.Draw(self.im)

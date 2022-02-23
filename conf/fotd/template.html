@@ -2,7 +2,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu" />
+		<title>#FOTD</title>
 		<style type="text/css">
+			html{
+					background-color: rgb(230,230,230);
+			}
 			body{
 				font-family: Ubuntu;
 				font-size: 14px;
@@ -23,18 +27,21 @@
 				max-width: 50vw;
 			}
 			.space{
-				padding: 25px;
+				padding-x: 25px;
+			}
+			table, th, td {
+				border:1px solid black;
+				border-collapse: collapse;
+			}
+			table {
+				margin: auto;
+				max-width: 50vw;
 			}
 		</style>
 	</head>
 	<body>
 		<div>
-			<div class="center space">
-				<img src="data:image/png;base64,{FROG_BASE64}" class="logo" />
-			</div>
-			<div class="space center ">
-				<h1 class="title">Frog Of The Day</h1>
-			</div>
+			{{CONTENT}}
 		</div>
 	</body>
 </html>

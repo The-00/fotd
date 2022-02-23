@@ -89,8 +89,8 @@ class Eyes:
             if self.model not in self.models:
                 self.model = rd.choice( self.models )
             
-            self.fg_color = self.data["eye"][side]["color"]["front"]
-            self.bg_color = self.data["eye"][side]["color"]["back"]
+            self.fg_color = tuple(self.data["eye"][side]["color"]["front"])
+            self.bg_color = tuple(self.data["eye"][side]["color"]["back"])
             
             if self.model == ">":
                 self.draw_right()

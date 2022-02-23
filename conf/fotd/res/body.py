@@ -41,7 +41,7 @@ class Body:
                             (self.x*(7/24 + self.data["eye"]["left"]["position"]["x"]/40),
                              self.y*(10/24 + self.data["eye"]["left"]["position"]["y"]/60)
                             ),
-                            (self.x*(17/24 - self.data["eye"]["right"]["position"]["y"]/40),
+                            (self.x*(17/24 - self.data["eye"]["right"]["position"]["x"]/40),
                              self.y*(10/24 + self.data["eye"]["right"]["position"]["y"]/60)
                             )
                         ]
@@ -86,18 +86,18 @@ class Body:
     def get(self, debug=False):
 
         # body shape generation
-        self.draw.ellipse(self.shapeBody[0], fill="#f00" if debug else self.data["body"]["color"])
+        self.draw.ellipse(self.shapeBody[0], fill="#f00" if debug else tuple(self.data["body"]["color"]))
         self.draw.rectangle((0,(self.shapeBody[1][1]+self.shapeBody[1][3])/2,self.x,self.y), fill="#0000")
-        self.draw.ellipse(self.shapeBody[1], fill="#f00" if debug else self.data["body"]["color"])
+        self.draw.ellipse(self.shapeBody[1], fill="#f00" if debug else tuple(self.data["body"]["color"]))
 
         # eyes
         for posX,posY in self.posEyes:
             bbox =  (posX - self.shapeEyes[0]/2, posY - self.shapeEyes[1]/2, posX + self.shapeEyes[0]/2, posY + self.shapeEyes[1]/2)
-            self.draw.ellipse(bbox, fill="#0f0" if debug else self.data["body"]["color"])
+            self.draw.ellipse(bbox, fill="#0f0" if debug else tuple(self.data["body"]["color"]))
 
         # cheeks
         radius = self.x *(1/10 - self.data["cheeks"]["radius"]/20)
-        color_cheek = self.data["cheeks"]["color"]
+        color_cheek = tuple(self.data["cheeks"]["color"])
 
         for posX,posY in self.posCheeks:
             bbox =  (posX - radius/2, posY - radius/2, posX + radius/2, posY + radius/2)
