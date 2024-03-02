@@ -1,7 +1,8 @@
-FROM dotriver/alpine-s6
+FROM zauberzeug/nicegui:latest
 
-RUN apk add python3 py3-pillow py3-pip
+COPY requirement.txt /requirement.txt
+RUN pip3 install -r /requirement.txt
 
-RUN pip install bottle Paste
+COPY app /app
+WORKDIR /app
 
-ADD conf/ /
