@@ -10,6 +10,16 @@ You'll find everything you need to launch a website in this repository, includin
 - a custom frog generator
 - a frog making API
 
+# Website
+
+The Website : [frog.unicolo.re](https://frog.unicolo.re)
+
+The results :
+
+![FOTD](https://frog.unicolo.re/api/fotd?size=350)  ![The 'Github' Frog](https://frog.unicolo.re/api/frog/Github?size=350)
+
+FOTD | 'Github' Frog
+
 # HOW TO USE
 
 ```
