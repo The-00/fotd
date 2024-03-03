@@ -8,6 +8,7 @@ You'll find everything you need to launch a website in this repository, includin
 - Frog of the day
 - Frog history
 - a custom frog generator
+- a custom ghost generator (experiment)
 - a frog making API
 
 # Website
