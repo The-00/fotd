@@ -18,7 +18,7 @@ cd fotd
 docker compose up --build
 ```
 
-or with already-built image : `ttrova/fotd:3.3.0`
+or with already-built image : `ttrova/fotd:3.4.0`
 
 # NiceGUI
 

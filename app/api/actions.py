@@ -1,4 +1,5 @@
 from api.frog import Frog
+from api.ghost import Ghost
 from functools import lru_cache
 from fastapi.responses import StreamingResponse
 
@@ -19,24 +20,23 @@ def return_frog_img(frog, size=None):
             headers={'Content-Disposition': f'filename="{frog.name}"'}
         )
 
-def api_fotd(days=0, date=None, size=None):
-    fotd = get_fotd(days, date, size)
+def api_fotd(days=0, date=None, size=None, *args, **kwargs):
+    fotd = get_fotd(days, date, size, *args, **kwargs)
     
     return return_frog_img(fotd)
 
 
-def api_seed_frog(seed=None, size:int=750):
+def api_seed_frog(seed=None, size:int=750, *args, **kwargs):
     name = None
 
     if not seed or seed=="random":
-        return return_frog_img(get_frog(size=size, seed=seed, name="random"))
+        return return_frog_img(get_frog(size=size, seed=seed, name="random", *args, **kwargs))
 
-    frog = get_frog_cached(seed=seed, size=size, name=name)
+    frog = get_frog_cached(seed=seed, size=size, name=name, *args, **kwargs)
     
     return return_frog_img(frog)
 
-@lru_cache()
-def get_fotd(days=0, date=None, size=1000):
+def get_fotd(days=0, date=None, size=1000, *args, **kwargs):
     global previous_day
     used_date = None
     today = datetime.date.today()
@@ -63,14 +63,21 @@ def get_fotd(days=0, date=None, size=1000):
     fotd_seed = used_date.strftime( os.environ['FOTD_FORMAT'] if 'FOTD_FORMAT' in os.environ else "%d-%m-%Y(%w|%j)")
     fotd_name = used_date.strftime("%d-%m-%Y")
     
-    fotd_obj = get_frog(size, fotd_seed, fotd_name)
+    fotd_obj = get_frog(size, fotd_seed, fotd_name, *args, **kwargs)
     return fotd_obj
 
-def get_frog(size, seed, name=None):
-    frog = Frog(size=size, seed=seed, name=name)
+def get_frog(size, seed, name=None, mode=None):
+
+    if mode:
+        if mode == "ghost":
+            return Ghost(size=size, seed=seed, name=name)
+        else:
+            return Frog(size=size, seed=seed, name=name)
+    else:
+        frog = Frog(size=size, seed=seed, name=name)
 
     return frog
 
 @lru_cache()
-def get_frog_cached(size, seed, name=None):
-    return get_frog(size=size, seed=seed, name=name)
+def get_frog_cached(size, seed, name=None, *args, **kwargs):
+    return get_frog(size=size, seed=seed, name=name, *args, **kwargs)

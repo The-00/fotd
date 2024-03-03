@@ -12,6 +12,8 @@ def _clip_url(url):
         full_url += '/'+ "/".join( url.split("/")[4:] )
     elif url.startswith("/api/frog/"):
         full_url += '/custom/'+ "/".join( url.split("/")[3:] )
+    elif url.startswith("/api/experiment/"):
+        full_url += '/experiment/'+ "/".join( url.split("/")[3:] )
     else:
         full_url += "/"
     ui.run_javascript(f'navigator.clipboard.writeText("{full_url}")')
@@ -55,12 +57,14 @@ def frog_date(date):
     alt = 'Frog Of The Day'
     txt = date
 
+    print(url, alt, txt)
+
     return _frog(txt, url, alt)
 
-def frog_seed(seed:str=""):
+def frog_seed(seed:str="", mode=None):
     seed_safe = urllib.parse.quote( seed , safe='')
-    url = f'/api/frog/{seed_safe}'
-    alt = 'Custom Frog'
+    url = f'/api/frog/{seed_safe}'  if not mode else f'/api/experiment/{mode}/{seed_safe}'
+    alt = 'Custom Frog' if not mode else f'Experiment {mode}'
     txt = seed if seed and seed != "" else "Random"
 
     return _frog(txt, url, alt)

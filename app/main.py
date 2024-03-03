@@ -5,6 +5,7 @@ import os
 import api.actions
 
 import pages.custom
+import pages.experiment
 import pages.fotd
 import pages.history
 
@@ -36,6 +37,11 @@ def fotd(days:int=0, date=None, size:int=750):
 def seed_frog(seed=None, size:int=750):
     return api.actions.api_seed_frog(seed, size)
 
+@app.get('/api/experiment/{mode}')
+@app.get('/api/experiment/{mode}/{seed:path}')
+def seed_frog(mode:str, seed=None, size:int=750):
+    return api.actions.api_seed_frog(seed, size, mode=mode)
+
 @ui.page("/history")
 async def history(client:Client):
     with header() as history_header:
@@ -48,6 +54,14 @@ async def history(client:Client):
 async def custom_frog(seed=""):
     with header():
         await pages.custom.custom_frog(seed)
+    footer()
+
+@ui.page("/experiment")
+@ui.page("/experiment/{mode}")
+@ui.page("/experiment/{mode}/{seed:path}")
+async def experiment_frog(mode="ghost", seed=""):
+    with header():
+        await pages.experiment.experiment_frog(mode, seed)
     footer()
 
 @app.exception_handler(404)

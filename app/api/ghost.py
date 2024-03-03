@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFilter
-from api.res.body import FrogBody
+from api.res.body import GhostBody
 from api.res.hat import Hat
 from api.res.eyes import Eyes
 from api.res.mouth import Mouth
@@ -53,9 +53,9 @@ data is a dictionnary :
 '''
 
 
-class Frog():
+class Ghost():
     '''
-        Generate the full frog
+        Generate the full ghost
     '''
 
     def __init__(self, size=1000, seed=None, name=None, data={}):
@@ -66,7 +66,7 @@ class Frog():
         self.rdg = random.default_rng()
         self.data = self.generate_data( self.data, seed )
 
-        self.shape = FrogBody(size, data=self.data)
+        self.shape = GhostBody(size, data=self.data)
         self.eyes = Eyes(self.shape.shapeEyes[2], data=self.data)
         self.nose = Nose(size, data=self.data)
         self.mouth = Mouth(size, data=self.data)
@@ -102,8 +102,12 @@ class Frog():
         hat = self.rdg.choice( sorted(glob.glob('./api/res/hats/*.png')) )
         nose = self.rdg.choice(["blush", "small", "nostril", "triangle", "none"])
  
+        arms_angle = self.rdg.integers(20, 45) if self.rd() > 0 else self.rdg.integers(-45, 10)
+        arms_length = self.rd()
+        arms_width  = self.rd()
 
         new_data = {
+            "special": [self.rd() for _ in range(20)],
             "eye":{
                 "left":{
                     "position": {
@@ -135,18 +139,18 @@ class Frog():
             "mouth":{
                 "position":{
                     "x":turn,
-                    "y":self.rd()
+                    "y":self.rd()/3
                 },
                 "model":mouth,
-                "ratio":self.rd() / 3
+                "ratio":self.rd() / 5 - 2
             },
             "nose":{
                 "position":{
                     "x":turn,
-                    "y":self.rd()
+                    "y":self.rd()/3
                 },
                 "model":nose,
-                "rotation":self.rd(),
+                "rotation":self.rd()/2,
                 "color":nose_color
             },
             "cheeks":{
@@ -172,13 +176,25 @@ class Frog():
                     "y":self.rd()
                 },
                 "model":hat,
-                "rotation":self.rd(),
+                "rotation":self.rd()/4,
                 "flip":self.rd() < 0,
             },
             "body":{
                 "shape":{
                     "height":self.rd(),
                     "width":self.rd()
+                },
+                "arms":{
+                    "left": {
+                        "angle": arms_angle,
+                        "length": arms_length,
+                        "width": arms_width,
+                    },
+                    "right": {
+                        "angle": -arms_angle,
+                        "length": arms_length,
+                        "width": arms_width,
+                    }
                 },
                 "color":body_color,
                 "outline_color":body_outline_color
