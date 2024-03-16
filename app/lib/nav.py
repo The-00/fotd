@@ -2,7 +2,7 @@ from nicegui import ui
 
 
 def header():
-    with ui.header(elevated=False, wrap=False).classes('items-center justify-between bg-transparent flex'):
+    with ui.header(elevated=False, wrap=False).classes('items-center justify-between bg-gradient-to-t from-transparent to-white flex').style('background-color:transparent;'):
 
         with ui.row().classes("flex"):
             with ui.link("", "/").classes("no-underline contents"):
@@ -27,7 +27,7 @@ def header():
     
 
 def footer():
-    with ui.footer().classes('justify-between bg-red-400 py-px'):
+    with ui.footer().classes('justify-between bg-red-400 py-px text-xs'):
         ui.markdown('Made by *Unicolore*').classes('text-white font-mono')
         with ui.link("", "https://nicegui.io/").classes("no-underline font-mono"):
             ui.markdown("Powered by **NiceGUI**").classes('text-white')
