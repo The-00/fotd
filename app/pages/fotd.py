@@ -13,7 +13,7 @@ def date_or_today(date):
         for f in ["%d-%m-%y", "%d-%m-%Y", "%d.%m.%y", "%d.%m.%Y"]:
             try:
                 date = datetime.datetime.strptime(date, f).date()
-                if date <= today: break
+                break
             except ValueError:
                 continue
         
