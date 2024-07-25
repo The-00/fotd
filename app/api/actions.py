@@ -1,5 +1,6 @@
 from api.frog import Frog
 from api.ghost import Ghost
+from api.mushroom import Mushroom
 from functools import lru_cache
 from fastapi.responses import StreamingResponse
 
@@ -71,6 +72,8 @@ def get_frog(size, seed, name=None, mode=None):
     if mode:
         if mode == "ghost":
             return Ghost(size=size, seed=seed, name=name)
+        if mode == "mushroom":
+            return Mushroom(size=size, seed=seed, name=name)
         else:
             return Frog(size=size, seed=seed, name=name)
     else:

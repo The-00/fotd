@@ -48,7 +48,7 @@ async def experiment_frog(mode, seed:str=""):
                 .classes('m-auto text-3xl w-4/5 text-red-400') \
                 .on("update:model-value",handler=lambda e: change_image(e.args, frog_image, mode)).props("filled color=red-400 label-color=red-400 input-style='color: rgb(248 113 113);'")
             
-            ui.toggle(options=["ghost","frog"], on_change=lambda e:ui.navigate.to(f"/experiment/{e.value}/{seed_input.value}"), value=mode) \
+            ui.toggle(options=["ghost","frog", "mushroom"], on_change=lambda e:ui.navigate.to(f"/experiment/{e.value}/{seed_input.value}"), value=mode) \
                 .classes('m-auto text-3xl text-red-400') \
                 .props("filled toggle-text-color=white toggle-color=red-400")
 
