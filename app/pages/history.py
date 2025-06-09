@@ -16,7 +16,9 @@ async def history(client):
         try:
             if await ui.run_javascript('window.pageYOffset >= document.body.offsetHeight - 2 * window.innerHeight'):
                 date = ( today - datetime.timedelta(days=client.counter) ).strftime("%d-%m-%Y")
-                frog_date(date).classes("md:w-5/12", remove="md:w-1/2")
+                with ui.column().classes("w-full md:w-5/12"):
+                    frog_date(date).classes("w-full", remove="md:w-1/2")
+                    ui.separator().classes('h-[2px]')
                 client.counter += 1
         except TimeoutError:
             pass

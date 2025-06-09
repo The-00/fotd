@@ -1,4 +1,5 @@
 from nicegui import ui
+from lib.darkmode import main_color
 import requests
 import urllib.parse
 import os
@@ -34,19 +35,19 @@ const setToClipboard = async blob => {
 
 def _frog(txt, url, alt):
     with ui.row().classes("w-full justify-center h-full md:w-1/2 ") as frog_bundle:
-        with ui.row().classes("w-full max-h-full h-full relative"):
+        with ui.column().classes("w-full max-h-full h-full relative"):
             ui.image(url).props(f"fit=contain content='{alt} | {txt}'").classes("w-full max-h-full")
-            with ui.row().classes("w-full absolute bottom-px gap-0"):
+            with ui.column().classes("w-full relative bottom-px gap-0"):
                 ui.label(txt).classes("text-center font-mono text-red-400 text-2xl w-full")
                 with ui.row().classes("w-full text-center justify-center"):
                     ui.button(icon="download", on_click=lambda e:_download(url, f"{alt}_{txt}.png")) \
-                        .classes("bg-white text-center").props("round flat color=red-400 ") \
+                        .classes(f"bg-transparent text-center").props("round flat color=red-400 ") \
                         .tooltip("Download Image")
                     ui.button(icon="content_copy", on_click=lambda e:_clip_url(url)) \
-                        .classes("bg-white text-center").props("round flat color=red-400 ") \
+                        .classes(f"bg-transparent text-center").props("round flat color=red-400 ") \
                         .tooltip("Copy URL")
                     ui.button(icon="perm_media", on_click=lambda e:_clip_image(url)) \
-                        .classes("bg-white text-center").props("round flat color=red-400 ") \
+                        .classes(f"bg-transparent text-center").props("round flat color=red-400 ") \
                         .tooltip("Copy Image")
 
     return frog_bundle

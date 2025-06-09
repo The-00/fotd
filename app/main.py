@@ -23,7 +23,7 @@ app.add_static_files('/res', 'res')
 async def api_doc():
     with header():
         ui.page_title(f'FOTD | API')
-        ui.html("<iframe src='/docs' class='w-full h-full'></iframe>").classes("w-full h-full")
+        ui.html("<iframe src='/api/docs' class='w-full h-full'></iframe>").classes("w-full h-full")
     footer()
 
 @app.get('/api/fotd')
@@ -45,7 +45,7 @@ def seed_frog(mode:str, seed=None, size:int=750):
 @ui.page("/history")
 async def history(client:Client):
     with header() as history_header:
-        history_header.classes(remove="overflow-hidden").style(remove="height:75vh;")
+        history_header.classes(remove="overflow-hidden").style(remove="height:72vh;")
         await pages.history.history(client)
     footer()
 
@@ -79,4 +79,7 @@ async def main(date:str=None):
         pages.fotd.fotd(date)
     footer()
 
-ui.run(favicon=favicon, show=False, title="FOTD", storage_secret=os.environ['STORAGE_SECRET'], dark=False, uvicorn_logging_level='info')
+app.docs_url = "/api/docs"
+app.openapi_url = "/api/openapi.json"
+app.redoc_url = "/api/redoc"
+ui.run(favicon=favicon, show=False, title="FOTD", storage_secret=os.environ['STORAGE_SECRET'], uvicorn_logging_level='info', fastapi_docs=True)

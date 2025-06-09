@@ -5,12 +5,12 @@ from lib.nav import header, footer
 from lib.display_frog import frog_seed
 
 def exception_handler_404(request: Request, exception: Exception) -> Response:
-    with Client(ui.page('')) as client:
+    with Client(ui.page(''), request=request) as client:
         error(404, "Page not found")
     return client.build_response(request, 404)
 
 def exception_handler_500(request: Request, exception: Exception) -> Response:
-    with Client(ui.page('')) as client:
+    with Client(ui.page(''), request=request) as client:
         error(500, "Something went wrong")
         
     return client.build_response(request, 500)
