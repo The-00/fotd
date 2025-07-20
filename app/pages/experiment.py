@@ -58,7 +58,7 @@ async def experiment_frog(mode, seed:str=""):
 
 
     if seed == "":
-        await generate_random(seed, frog_image, mode)
+        await generate_random(seed_input, frog_image, mode)
         balises(f"{mode}", f'/api/experiment/{mode}', f'/experiment/{mode}')
     else:
         ui.page_title(f'FOTD | {mode} | {seed}')
