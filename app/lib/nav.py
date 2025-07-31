@@ -23,6 +23,8 @@ def header():
                         ui.button("History", icon="history").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     with ui.menu_item(None, lambda:ui.navigate.to("/experiment")):
                         ui.button("Experiment", icon="science").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
+                    with ui.menu_item(None, lambda:ui.navigate.to("/playground")):
+                        ui.button("Playground", icon="science").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     with ui.menu_item(None, lambda:ui.navigate.to("/api")):
                         ui.button("API", icon="api").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     

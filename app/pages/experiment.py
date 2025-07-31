@@ -37,7 +37,7 @@ async def change_image(seed, element, mode):
         frog_seed(seed, mode).classes(remove="md:w-1/2")
         await update_browser(seed, mode)
 
-async def experiment_frog(mode, seed:str=""):
+async def experiment(mode, seed:str=""):
     with ui.row().classes('flex w-full h-4/5 md:h-full justify-center flex-row-reverse'):
         with ui.row().classes("sm:w-4/5 md:w-1/2 w-full max-h-full h-full justify-center") as frog_image:
             frog_seed(seed, mode).classes(remove="md:w-1/2")

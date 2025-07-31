@@ -3,6 +3,7 @@ from lib.darkmode import main_color
 import requests
 import urllib.parse
 import os
+import json
 
 def _download(url, name):
     ui.download(src=url, filename=name)
@@ -67,5 +68,13 @@ def frog_seed(seed:str="", mode=None):
     url = f'/api/frog/{seed_safe}'  if not mode else f'/api/experiment/{mode}/{seed_safe}'
     alt = 'Custom Frog' if not mode else f'Experiment {mode}'
     txt = seed if seed and seed != "" else "Random"
+
+    return _frog(txt, url, alt)
+
+def frog_data(data:dict={}):
+    data_safe = urllib.parse.quote( json.dumps(data) , safe='')
+    url = f'/api/frog/?characteristics={data_safe}'
+    alt = 'Playground Frog'
+    txt = 'Playground'
 
     return _frog(txt, url, alt)

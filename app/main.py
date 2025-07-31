@@ -1,13 +1,16 @@
 from nicegui import ui, app, Client
-from fastapi import Request, Response
-import os
+from fastapi import Request, Response, Query, Depends
+from fastapi.responses import StreamingResponse
+import os, io
 
 import api.actions
+import api.res.models
 
 import pages.custom
 import pages.experiment
 import pages.fotd
 import pages.history
+import pages.playground
 
 from lib.nav import header, footer
 from lib.error import exception_handler_404, exception_handler_500
@@ -19,28 +22,54 @@ favicon=f"{website}/res/logo.ico"
 
 app.add_static_files('/res', 'res')
 
+## APIs
+
+def _stream_image(image, name):
+    bio = io.BytesIO()
+    image.save(bio, "PNG")
+    bio.seek(0)
+    return StreamingResponse(
+            content=bio,
+            media_type=f"image/png",
+            headers={'Content-Disposition': f'filename="{name}"'}
+        )
+
+@app.get('/api/fotd', tags=["frog", "fotd"])
+@app.get('/api/fotd/date/{date}', tags=["frog", "fotd"])
+def get_frog_of_the_day(date=None, size:int=750) -> StreamingResponse:
+    fotd = api.actions.api_fotd(date, size)
+    image = fotd.get(size)
+    return _stream_image(image, fotd.name)
+
+@app.options('/api/fotd', tags=["frog", "fotd"])
+@app.options('/api/fotd/date/{date}', tags=["frog", "fotd"])
+def get_frog_of_the_day(date=None, size:int=750) -> StreamingResponse:
+    fotd = api.actions.api_fotd(date, size)
+    return fotd.data
+
+@app.get('/api/frog/{seed:path}', tags=["frog"])
+@app.get('/api/experiment/{mode}/{seed:path}', tags=["frog", "mushroom", "ghost"])
+def get_image(seed:str="", characteristics:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+    if not characteristics: characteristics=api.res.models.CharacterModel()
+    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=characteristics)
+    image = character.get(size)
+    return _stream_image(image, character.name)
+
+@app.options('/api/frog/{seed:path}', tags=["frog"])
+@app.options('/api/experiment/{mode}/{seed:path}', tags=["frog", "mushroom", "ghost"])
+def get_image(seed:str="", characteristics:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+    if not characteristics: characteristics=api.res.models.CharacterModel()
+    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=characteristics)
+    return character.data
+
+## Pages
+
 @ui.page("/api")
 async def api_doc():
     with header():
         ui.page_title(f'FOTD | API')
         ui.html("<iframe src='/api/docs' class='w-full h-full'></iframe>").classes("w-full h-full")
     footer()
-
-@app.get('/api/fotd')
-@app.get('/api/fotd/days/{days}')
-@app.get('/api/fotd/date/{date}')
-def fotd(days:int=0, date=None, size:int=750):
-    return api.actions.api_fotd(days, date, size)
-
-@app.get('/api/frog/{seed:path}')
-@app.get('/api/frog')
-def seed_frog(seed=None, size:int=750):
-    return api.actions.api_seed_frog(seed, size)
-
-@app.get('/api/experiment/{mode}')
-@app.get('/api/experiment/{mode}/{seed:path}')
-def seed_frog(mode:str, seed=None, size:int=750):
-    return api.actions.api_seed_frog(seed, size, mode=mode)
 
 @ui.page("/history")
 async def history(client:Client):
@@ -61,7 +90,14 @@ async def custom_frog(seed=""):
 @ui.page("/experiment/{mode}/{seed:path}")
 async def experiment_frog(mode="ghost", seed=""):
     with header():
-        await pages.experiment.experiment_frog(mode, seed)
+        await pages.experiment.experiment(mode, seed)
+    footer()
+
+@ui.page("/playground")
+async def experiment_frog(characteristics:api.res.models.CharacterModel=Query(None)):
+    if not characteristics: characteristics=api.res.models.CharacterModel()
+    with header():
+        await pages.playground.playground(data=characteristics.model_dump())
     footer()
 
 @app.exception_handler(404)
