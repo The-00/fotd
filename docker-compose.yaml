@@ -14,3 +14,10 @@ services:
       - STORAGE_SECRET=change-this-to-yor-own-private-secret
       - WEBSITE=http://localhost:8080
       - FOTD_FORMAT=fotd_%d-%m-%Y(%w|%j)
+      - NICEGUI_REDIS_URL=redis://redis:6379
+  redis:
+    image: redis:alpine
+    environment:
+      - REDIS_TIMEOUT=10
+    ports:
+      - "6379:6379"

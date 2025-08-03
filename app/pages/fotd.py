@@ -10,7 +10,7 @@ def date_or_today(date):
     elif type(date) == type(today):
         return today if date > today else date
     else:
-        for f in ["%d-%m-%y", "%d-%m-%Y", "%d.%m.%y", "%d.%m.%Y"]:
+        for f in ["%d-%m-%y", "%d-%m-%Y", "%d.%m.%y", "%d.%m.%Y", "%d/%m/%Y"]:
             try:
                 date = datetime.datetime.strptime(date, f).date()
                 break

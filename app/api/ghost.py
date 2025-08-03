@@ -95,7 +95,7 @@ class Ghost(api.character.Character):
                 (nose_image,      nose_position),
                 (hat_image,       hat_position)
             ],
-            outline_color=self.data.body.color.as_rgb_tuple()
+            outline_color=self.data.body.outline_color.as_rgb_tuple()
         )
 
         return body_image.resize((size,size))

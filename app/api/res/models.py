@@ -18,10 +18,10 @@ class RGBColor(Color):
 
 # definition
 class PartModel(BaseModel):
-    ratio:        float | None = Field(description='increment or decrement in size', ge=0, default=1, examples=[1])
-    rotation:     float | None = Field(description='rotation in degrees', ge=-180, le=180, default=0, examples=[0])
-    flip:         bool  | None = Field(description='is the part fipped', default=False, examples=[False])
-    stroke_width: float | None = Field(description='stroke in percent of size', ge=0, le=1, default=1/100, examples=[1/100])
+    ratio:        float | None = Field(description='increment or decrement in size', gt=0, default=None, examples=[1])
+    rotation:     float | None = Field(description='rotation in degrees', ge=-180, le=180, default=None, examples=[0])
+    flip:         bool  | None = Field(description='is the part fipped', default=None, examples=[False])
+    stroke_width: float | None = Field(description='stroke in percent of size', ge=0, le=1, default=None, examples=[1/100])
 
 class PartPosition(BaseModel):
     x: float = Field(description="horizontal position", default=0, examples=[0])
@@ -59,29 +59,28 @@ class NoseModelList(Enum):
 
 # models
 class HatModel(PartModel):
-    model_number: int | None = Field(description='model of hat to use', ge=0, le=len(glob.glob('./api/res/hats/*.png')), default=0, examples=[0])
+    model_number: int | None = Field(description='model of hat to use', ge=0, le=len(glob.glob('./api/res/hats/*.png')), default=None, examples=[0])
 
 class MouthModel(PartModel):
-    model_number: int | None = Field(description='model of mouth to use', ge=0, le=len(glob.glob('./api/res/mouths/*.png')), default=0, examples=[0])
+    model_number: int | None = Field(description='model of mouth to use', ge=0, le=len(glob.glob('./api/res/mouths/*.png')), default=None, examples=[0])
 
 class NoseModel(PartModel):
-    model_name: NoseModelList | None = Field(description='model of hat to use', default="none", examples=["none"])
-    color:      RGBColor | None         = Field(description='nose color', default=None)
+    model_name: NoseModelList | None = Field(description='model of hat to use', default=None, examples=["none"])
+    color:      RGBColor | None      = Field(description='nose color', default=None)
 
 class EyeModel(PartModel):
-    model_name:  EyeModelList | None = Field(description='model of eye to use', default='o', examples=['o'])
+    model_name:  EyeModelList | None = Field(description='model of eye to use', default=None, examples=['o'])
     pupil_color: RGBColor | None     = Field(description='pupil color', default=None)
     back_color:  RGBColor | None     = Field(description='back of the eye color', default=None)
 
-class CheekModel(PartModel):
+class CheekModel(PartModel, PartShape):
     color:         RGBColor | None = Field(description='cheek color', default=None)
-    outline_width: int | None      = Field(description='outline of cheek, to blur with body color', ge=0, le=15, default=3, examples=[3])
+    outline_width: float | None    = Field(description='outline of cheek, to blur with body color', ge=0, le=15, default=None, examples=[3])
 
 class GhostArmModel(BaseModel):
-    rotation:  float | None = Field(description='rotation in degrees', ge=-180, le=180, default=0, examples=[0])
-    length:    float = Field(description="height in percent of size", default=0.5, examples=[0.5])
-    thickness: float = Field(description="width in percent of size", default=0.5, examples=[0.5])
-
+    rotation:  float | None = Field(description='rotation in degrees', ge=-180, le=180, default=None, examples=[0])
+    length:    float        = Field(description="height in percent of size", default=0.5, examples=[0.5])
+    thickness: float        = Field(description="width in percent of size", default=0.5, examples=[0.5])
 
 class CharacterBodyModel(BaseModel):
     left_eye_position:    PartPosition | None = Field(description='position of the left eye', default=None)
@@ -108,14 +107,18 @@ class GhostBodyModel(CharacterBodyModel):
 class MushroomBodyModel(CharacterBodyModel):
     mushroom_hat_shape: PartShape | None = Field(description='shape of the mushroom hat', default=None)
     mushroom_hat_color: RGBColor | None  = Field(description='color of the mushroom hat color', default=None)
+    left_eye_shape:     PartShape | None = Field(description='shape of the left eye', default=None)
+    right_eye_shape:    PartShape | None = Field(description='shape of the right eye', default=None)
 
 class CharacterBaseModel(BaseModel):
-    body:      CharacterBodyModel | None = Field(description='the body description', default=None)
-    left_eye:  EyeModel | None           = Field(description='the left eye description', default=None)
-    right_eye: EyeModel | None           = Field(description='the right eye description', default=None)
-    nose:      NoseModel | None          = Field(description='the nose description', default=None)
-    mouth:     MouthModel | None         = Field(description='the mouth description', default=None)
-    hat:       HatModel | None           = Field(description='the hat description', default=None)
+    body:        CharacterBodyModel | None = Field(description='the body description', default=None)
+    left_eye:    EyeModel | None           = Field(description='the left eye description', default=None)
+    right_eye:   EyeModel | None           = Field(description='the right eye description', default=None)
+    left_cheek:  CheekModel | None         = Field(description='the left cheek description', default=None)
+    right_cheek: CheekModel | None         = Field(description='the right cheek description', default=None)
+    nose:        NoseModel | None          = Field(description='the nose description', default=None)
+    mouth:       MouthModel | None         = Field(description='the mouth description', default=None)
+    hat:         HatModel | None           = Field(description='the hat description', default=None)
 
 class FrogModel(CharacterBaseModel):
     body: FrogBodyModel | None = Field(description='the frog body description', default=None)
@@ -136,4 +139,42 @@ class CharacterModel(FrogModel, GhostModel, MushroomModel):
                 pass
         return v
 
-# CharacterModel = Json | None
+    def __hash__(self) -> int:
+        return self.model_dump_json().__hash__()
+
+
+class DiffModel(BaseModel):
+    @classmethod
+    def diff(cls, obj1, obj2):
+        data = {}
+        for field, field_info in obj1.model_fields.items():
+            v1 = getattr(obj1, field)
+            v2 = getattr(obj2, field)
+
+            if v1 == v2:
+                continue
+
+            # Si c'est un sous-modèle Pydantic → diff récursif
+            if isinstance(v1, BaseModel) and isinstance(v2, BaseModel):
+                sub_diff = DiffModel.diff(v1, v2)
+                if sub_diff:
+                    data[field] = sub_diff
+                continue
+
+            # Si c'est une liste de modèles
+            if isinstance(v1, list) and isinstance(v2, list):
+                list_diff = []
+                for i in range(min(len(v1), len(v2))):
+                    if isinstance(v1[i], BaseModel) and isinstance(v2[i], BaseModel):
+                        sub_diff = DiffModel.diff(v1[i], v2[i])
+                        if sub_diff:
+                            list_diff.append(sub_diff)
+                    elif v1[i] != v2[i]:
+                        list_diff.append(v2[i])
+                if list_diff or len(v1) != len(v2):
+                    data[field] = list_diff or v2
+                continue
+
+            # Valeur simple différente
+            data[field] = v2
+        return obj1.__class__(**data)

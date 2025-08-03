@@ -17,14 +17,12 @@ def header():
                 with ui.menu().classes("w-1/2 sm:w-1/6") as menu:
                     with ui.menu_item(None, lambda:ui.navigate.to("/")):
                         ui.button("Today", icon="today").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
-                    with ui.menu_item(None, lambda:ui.navigate.to("/custom")):
-                        ui.button("Custom", icon="tune").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     with ui.menu_item(None, lambda:ui.navigate.to("/history")):
                         ui.button("History", icon="history").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
-                    with ui.menu_item(None, lambda:ui.navigate.to("/experiment")):
-                        ui.button("Experiment", icon="science").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
-                    with ui.menu_item(None, lambda:ui.navigate.to("/playground")):
-                        ui.button("Playground", icon="science").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
+                    with ui.menu_item(None, lambda:ui.navigate.to("/custom")):
+                        ui.button("Custom", icon="tune").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
+                    with ui.menu_item(None, lambda:ui.navigate.to("/favorites")):
+                        ui.button("Favorites", icon="star").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     with ui.menu_item(None, lambda:ui.navigate.to("/api")):
                         ui.button("API", icon="api").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     
@@ -34,6 +32,7 @@ def header():
 
 def footer():
     with ui.footer().classes('justify-between bg-red-400 py-px text-xs'):
-        ui.markdown('Made by *Unicolore*').classes(f'text-{main_color()} font-mono')
-        with ui.link("", "https://nicegui.io/").classes("no-underline font-mono"):
+        with ui.link("", "https://github.com/The-00/fotd/", new_tab=True).classes("no-underline font-mono"):
+            ui.markdown('Made by *Unicolore*').classes(f'text-{main_color()} font-mono')
+        with ui.link("", "https://nicegui.io/", new_tab=True).classes("no-underline font-mono"):
             ui.markdown("Powered by **NiceGUI**").classes(f'text-{main_color()}')

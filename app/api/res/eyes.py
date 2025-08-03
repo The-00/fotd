@@ -2,9 +2,6 @@ from PIL import Image, ImageDraw
 import math
 from api.res.models import EyeModel, EyeModelList
 
-class Eyes:
-    pass
-
 class Eye:
     '''
         Generation of eyes

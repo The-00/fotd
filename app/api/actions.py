@@ -3,7 +3,8 @@ from api.ghost import Ghost
 from api.mushroom import Mushroom
 from functools import lru_cache
 from fastapi.responses import StreamingResponse
-from api.res.models import CharacterModel, GhostModel, MushroomModel, FrogModel, CharacterBaseModel
+from api.res.models import CharacterModel, GhostModel, MushroomModel, FrogModel, CharacterBaseModel, DiffModel
+import munch
 
 import datetime, time, io, re, os, enum
 
@@ -23,7 +24,7 @@ def api_fotd(date=None, size:int=750):
         previous_day = today
 
     if date and type(date) == str:
-        for f in ["%d-%m-%y", "%d-%m-%Y", "%d.%m.%y", "%d.%m.%Y"]:
+        for f in ["%d-%m-%y", "%d-%m-%Y", "%d.%m.%y", "%d.%m.%Y", "%d/%m/%Y"]:
             try:
                 date = datetime.date.fromtimestamp( datetime.datetime.strptime(date, f).timestamp() )
                 if date <= today:
@@ -47,7 +48,15 @@ def api_fotd(date=None, size:int=750):
 def api_character(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
     return get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode, data=data)
 
-#@lru_cache()
+def api_url(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
+    character_seeded = get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode)
+    character_dataed = get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode, data=data)
+    
+    character_diff = DiffModel.diff(character_seeded.data, character_dataed.data)
+
+    return munch.Munch({"seed": seed, "data":character_diff.model_dump_json(exclude_unset=True), "mode": mode.value})
+
+@lru_cache()
 def get_character(size:int, seed:str, name:str=None, mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
     if mode:
         if mode == CharacterList.ghost:

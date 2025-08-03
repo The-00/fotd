@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFilter
 from api.res.body import FrogBody
 from api.res.hat import Hat
-from api.res.eyes import Eyes
+from api.res.eyes import Eye
 from api.res.mouth import Mouth
 from api.res.nose import Nose
 from numpy import random
@@ -17,7 +17,7 @@ class Character():
     '''
 
     def __init__(self, name=None, size=1000, seed=None, data:CharacterModel=CharacterBaseModel()):
-        if type(seed) == str and len(seed) > 0:
+        if type(seed) == str and len(seed) > 0 and seed != "random":
             seed = int("".join([str(ord(c)) for c in seed]))
             self.rdg = random.default_rng( seed % (2**32-1) )
         else:
@@ -53,7 +53,8 @@ class Character():
         nose_color = tuple( [ min(255 ,max(0 ,x+self.rdg.integers(30, 60)*self.rdg.choice([-1, 1]))) for x in body_color ] )
         nose_stroke_width = self.rd(0.05, 0.1)
 
-        cheecks_x, cheecks_y= self.rd(), self.rd()
+        cheecks_x, cheecks_y = self.rd(), self.rd()
+        cheeks_outline_width = self.rd(0, 1)
 
         mouth = self.rdg.integers(0, len(glob.glob('./api/res/mouths/*.png')))
         hat = self.rdg.integers(0, len(glob.glob('./api/res/hats/*.png')))
@@ -77,27 +78,56 @@ class Character():
                 stroke_width=eyes_stroke_width,
                 pupil_color=eyes_color_front,
                 back_color=eyes_color_back,
+                ratio=1,
+                rotation=0,
+                flip=False,
             ),
             right_eye=EyeModel(
                 model_name=EyeModelList(eyes_model_name[1]),
                 stroke_width=eyes_stroke_width,
                 pupil_color=eyes_color_front,
                 back_color=eyes_color_back,
+                ratio=1,
+                rotation=0,
+                flip=False,
+            ),
+            left_cheek=CheekModel(
+                color=cheeks_color,
+                outline_width=cheeks_outline_width,
+                ratio=1,
+                rotation=0,
+                flip=False,
+                stroke_width=1/100
+            ),
+            right_cheek=CheekModel(
+                color=cheeks_color,
+                outline_width=cheeks_outline_width,
+                ratio=1,
+                rotation=0,
+                flip=False,
+                stroke_width=1/100
             ),
             mouth=MouthModel(
                 model_number=mouth,
-                ratio=self.rd(0.7, 1.7)
+                ratio=self.rd(0.7, 1.7),
+                rotation=0,
+                flip=False,
+                stroke_width=1/100
             ),
             nose=NoseModel(
                 model_name=nose,
                 rotation=self.rd(-5, 5),
                 color=Color(nose_color),
-                stroke_width=nose_stroke_width
+                stroke_width=nose_stroke_width,
+                ratio=1,
+                flip=False,
             ),
             hat=HatModel(
                 model_number=hat,
                 rotation=self.rd(-10, 10),
-                flip=self.rd() < 0
+                flip=self.rd() < 0,
+                ratio=1,
+                stroke_width=1/100
             )
         )
 

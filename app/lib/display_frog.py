@@ -1,21 +1,32 @@
-from nicegui import ui
+from nicegui import ui, app
 from lib.darkmode import main_color
 import requests
 import urllib.parse
 import os
 import json
 
+from api.actions import api_character, api_url, CharacterList
+
+def _fav(url, name, element):
+    if "fav" not in  app.storage.user: app.storage.user['fav'] = {}
+
+    if name in app.storage.user['fav']:
+        del(app.storage.user['fav'][name])
+        element.props(add='color=red-400', remove='color=yellow-400')
+    else:
+        app.storage.user['fav'][name] = url
+        element.props(add='color=yellow-400', remove='color=red-400')
+    
 def _download(url, name):
     ui.download(src=url, filename=name)
 
 def _clip_url(url):
-    full_url = os.environ['WEBSITE'] 
-    if url.startswith("/api/fotd/date/"):
-        full_url += '/'+ "/".join( url.split("/")[4:] )
-    elif url.startswith("/api/frog/"):
-        full_url += '/custom/'+ "/".join( url.split("/")[3:] )
-    elif url.startswith("/api/experiment/"):
-        full_url += '/experiment/'+ "/".join( url.split("/")[3:] )
+    full_url = os.environ['WEBSITE']
+    url_type = url.split("/")[2]
+    if url_type == "fotd":
+        full_url += '/'+ "/".join( url.split("/")[3:] )
+    elif url_type in [e.value for e in CharacterList]:
+        full_url += '/custom/'+ "/".join( url.split("/")[2:] )
     else:
         full_url += "/"
     ui.run_javascript(f'navigator.clipboard.writeText("{full_url}")')
@@ -50,16 +61,17 @@ def _frog(txt, url, alt):
                     ui.button(icon="perm_media", on_click=lambda e:_clip_image(url)) \
                         .classes(f"bg-transparent text-center").props("round flat color=red-400 ") \
                         .tooltip("Copy Image")
+                    ui.button(icon="star", on_click=lambda e:_fav(url, txt, e.sender)) \
+                        .classes(f"bg-transparent text-center").props(f"round flat color={'red-400' if txt not in app.storage.user.get('fav',{}) else 'yellow-400'} ") \
+                        .tooltip("Favorite")
 
     return frog_bundle
 
 def frog_date(date):
     date_safe = urllib.parse.quote( date )
-    url = f'/api/fotd/date/{date_safe}'
+    url = f'/api/fotd/{date_safe}'
     alt = 'Frog Of The Day'
     txt = date
-
-    print(url, alt, txt)
 
     return _frog(txt, url, alt)
 
@@ -76,5 +88,20 @@ def frog_data(data:dict={}):
     url = f'/api/frog/?characteristics={data_safe}'
     alt = 'Playground Frog'
     txt = 'Playground'
+
+    return _frog(txt, url, alt)
+
+def character_element(mode, seed, data):
+    url_data = api_url(seed=seed, mode=mode, data=data)
+
+    url = f"/api/{urllib.parse.quote( url_data.mode , safe='')}/{urllib.parse.quote( url_data.seed , safe='')}"
+    txt = f"{url_data.mode.capitalize()} {url_data.seed}"
+    alt = f"{url_data.mode.capitalize()} {url_data.seed}"
+    
+    if url_data.data != "{}":
+        data_safe = urllib.parse.quote( url_data.data , safe='')
+        url += f"?data={data_safe}"
+        alt += " (customized)"
+        txt += "*"
 
     return _frog(txt, url, alt)

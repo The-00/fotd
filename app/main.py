@@ -1,19 +1,20 @@
 from nicegui import ui, app, Client
 from fastapi import Request, Response, Query, Depends
 from fastapi.responses import StreamingResponse
+from fastapi.exceptions import RequestValidationError
 import os, io
 
 import api.actions
 import api.res.models
 
 import pages.custom
-import pages.experiment
 import pages.fotd
 import pages.history
+import pages.favorites
 import pages.playground
 
 from lib.nav import header, footer
-from lib.error import exception_handler_404, exception_handler_500
+from lib.error import exception_handler_404, exception_handler_422, exception_handler_500
 from lib.meta import balises
 
 
@@ -34,32 +35,28 @@ def _stream_image(image, name):
             headers={'Content-Disposition': f'filename="{name}"'}
         )
 
-@app.get('/api/fotd', tags=["frog", "fotd"])
-@app.get('/api/fotd/date/{date}', tags=["frog", "fotd"])
+@app.get('/api/fotd/{date:path}', tags=["fotd"])
 def get_frog_of_the_day(date=None, size:int=750) -> StreamingResponse:
     fotd = api.actions.api_fotd(date, size)
     image = fotd.get(size)
     return _stream_image(image, fotd.name)
 
-@app.options('/api/fotd', tags=["frog", "fotd"])
-@app.options('/api/fotd/date/{date}', tags=["frog", "fotd"])
-def get_frog_of_the_day(date=None, size:int=750) -> StreamingResponse:
+@app.options('/api/fotd/{date:path}', tags=["fotd"])
+def get_frog_of_the_day_data(date=None, size:int=750) -> StreamingResponse:
     fotd = api.actions.api_fotd(date, size)
     return fotd.data
 
-@app.get('/api/frog/{seed:path}', tags=["frog"])
-@app.get('/api/experiment/{mode}/{seed:path}', tags=["frog", "mushroom", "ghost"])
-def get_image(seed:str="", characteristics:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
-    if not characteristics: characteristics=api.res.models.CharacterModel()
-    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=characteristics)
+@app.get('/api/{mode}/{seed:path}', tags=["character"])
+def get_image(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+    if not data: data=api.res.models.CharacterModel()
+    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
     image = character.get(size)
     return _stream_image(image, character.name)
 
-@app.options('/api/frog/{seed:path}', tags=["frog"])
-@app.options('/api/experiment/{mode}/{seed:path}', tags=["frog", "mushroom", "ghost"])
-def get_image(seed:str="", characteristics:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
-    if not characteristics: characteristics=api.res.models.CharacterModel()
-    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=characteristics)
+@app.options('/api/{mode}/{seed:path}', tags=["character"])
+def get_data(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+    if not data: data=api.res.models.CharacterModel()
+    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
     return character.data
 
 ## Pages
@@ -78,38 +75,36 @@ async def history(client:Client):
         await pages.history.history(client)
     footer()
 
+@ui.page("/favorites")
+async def favorites():
+    with header() as favorites_header:
+        favorites_header.classes(remove="overflow-hidden").style(remove="height:72vh;")
+        await pages.favorites.favorites()
+    footer()
+
 @ui.page("/custom")
-@ui.page("/custom/{seed:path}")
-async def custom_frog(seed=""):
+@ui.page("/custom/{mode}")
+@ui.page("/custom/{mode}/{seed:path}")
+async def get_image(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750):
+    if not data: data=api.res.models.CharacterModel()
     with header():
-        await pages.custom.custom_frog(seed)
-    footer()
-
-@ui.page("/experiment")
-@ui.page("/experiment/{mode}")
-@ui.page("/experiment/{mode}/{seed:path}")
-async def experiment_frog(mode="ghost", seed=""):
-    with header():
-        await pages.experiment.experiment(mode, seed)
-    footer()
-
-@ui.page("/playground")
-async def experiment_frog(characteristics:api.res.models.CharacterModel=Query(None)):
-    if not characteristics: characteristics=api.res.models.CharacterModel()
-    with header():
-        await pages.playground.playground(data=characteristics.model_dump())
+        await pages.custom.custom(mode=mode, seed=seed, data=data)
     footer()
 
 @app.exception_handler(404)
 async def app_exception_handler_404(request: Request, exception: Exception) -> Response:
     return exception_handler_404(request, exception)
 
+@app.exception_handler(RequestValidationError)
+async def app_exception_handler_422(request: Request, exception: Exception) -> Response:
+    return exception_handler_422(request, exception)
+
 @app.exception_handler(500)
 async def app_exception_handler_500(request: Request, exception: Exception) -> Response:
     return exception_handler_500(request, exception)
 
 @ui.page('/')
-@ui.page('/{date}')
+@ui.page('/{date:path}')
 async def main(date:str=None):
     with header():
         pages.fotd.fotd(date)
