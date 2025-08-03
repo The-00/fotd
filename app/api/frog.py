@@ -33,12 +33,29 @@ class Frog(api.character.Character):
         eyes_shape_width=self.rd(-1.5, 1.5)
         eyes_shape_height=self.rd()
 
+        cheecks_x, cheecks_y = self.rd(), self.rd()
+        cheeks_outline_width = self.rd(5, 20)
+        cheeks_radius = 0
+        cheeks_color = tuple( [ min(255 ,max(0 ,x+self.rdg.integers(-20, 20))) for x in self.data.body.color.as_rgb_tuple() ] )
+
         seeded_data = FrogModel(
             body=FrogBodyModel(
                 left_eye_shape=PartShape(width=eyes_shape_width, height=eyes_shape_height),
                 right_eye_shape=PartShape(width=eyes_shape_width, height=eyes_shape_height),
-                belly_shape=PartShape(width=self.rd(1,2), height=self.rd(0.5,1.2)),
-                belly_color=tuple( [ min(255 ,max(0 ,x+self.rdg.integers(-40, 40))) for x in self.data.body.color.as_rgb_tuple() ] )
+                belly_shape=PartShape(width=0, height=3.5),
+                belly_color=tuple( [ min(255 ,max(0 ,x+self.rdg.integers(-40, 40))) for x in self.data.body.color.as_rgb_tuple() ] ),
+                left_cheek_position=PartPosition(x=cheecks_x, y=cheecks_y),
+                right_cheek_position=PartPosition(x=-cheecks_x, y=cheecks_y),
+                left_cheek=FrogCheekModel(
+                    radius=cheeks_radius,
+                    color=cheeks_color,
+                    outline_width=cheeks_outline_width
+                ),
+                right_cheek=FrogCheekModel(
+                    radius=cheeks_radius,
+                    color=cheeks_color,
+                    outline_width=cheeks_outline_width
+                ),
             )
         )
 

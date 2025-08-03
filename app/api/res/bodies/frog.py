@@ -41,12 +41,12 @@ class FrogBody:
         })
 
         self.left_cheek_position = munch.Munch({
-            "x": self.width*(1/3 + self.data.right_cheek_position.x/30),
-            "y": self.height*(1/2 + self.data.right_cheek_position.y/20)
+            "x": self.width*(35/100 + self.data.right_cheek_position.x/30),
+            "y": self.mouth_position.y + self.height*(0.05+self.data.right_cheek_position.y/30)
         })
         self.right_cheek_position = munch.Munch({
-            "x": self.width*(2/3 + self.data.left_cheek_position.x/30),
-            "y": self.height*(1/2 + self.data.left_cheek_position.y/20)
+            "x": self.width*(65/100 + self.data.left_cheek_position.x/30),
+            "y": self.mouth_position.y + self.height*(0.05+self.data.left_cheek_position.y/30)
         })
 
         self.hat_position = munch.Munch({
@@ -91,23 +91,23 @@ class FrogBody:
             self.draw.ellipse(eye_bbox, fill=self.data.color.as_rgb_tuple())
 
         mask = self.im.copy()
-        
+
         # cheeks
-        # radius = self.width *(1/10 - self.data["cheeks"]["radius"]/20)
-        # color_cheek = tuple(self.data["cheeks"]["color"])
-        # width_outline_cheek = self.data["cheeks"]["outline_width"]
+        for cheek_pos, cheek in [(self.left_cheek_position, self.data.left_cheek), (self.right_cheek_position, self.data.right_cheek)]:
+            radius = self.width/7 * cheek.radius
+            color_cheek = cheek.color.as_rgb_tuple()
+            width_outline_cheek = cheek.outline_width
 
-        # bg = Image.new("RGBA", self.im.size, (color_cheek[0], color_cheek[1], color_cheek[2], 0))
-        # bg_draw = ImageDraw.Draw(bg)
+            bg = Image.new("RGBA", self.im.size, (color_cheek[0], color_cheek[1], color_cheek[2], 0))
+            bg_draw = ImageDraw.Draw(bg)
 
-        # for posX,posY in self.posCheeks:
-        #     bbox =  (posX - radius/2, posY - radius/2, posX + radius/2, posY + radius/2)
-        #     bg_draw.ellipse(bbox, fill=color_cheek)
+            bbox =  (cheek_pos.x - radius/2, cheek_pos.y - radius/2, cheek_pos.x + radius/2, cheek_pos.y + radius/2)
+            bg_draw.ellipse(bbox, fill=color_cheek)
 
-        # bg = bg.filter(ImageFilter.GaussianBlur(radius = width_outline_cheek))
-        # self.im.alpha_composite(bg)
-        
+            bg = bg.filter(ImageFilter.GaussianBlur(radius = width_outline_cheek))
+            self.im.alpha_composite(bg)
 
+        # belly
         self.draw.ellipse(self.belly_shape, fill=self.data.belly_color.as_rgb_tuple())
 
         new_im = Image.new("RGBA", self.im.size, "#0000")

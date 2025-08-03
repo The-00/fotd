@@ -73,20 +73,19 @@ class EyeModel(PartModel):
     pupil_color: RGBColor | None     = Field(description='pupil color', default=None)
     back_color:  RGBColor | None     = Field(description='back of the eye color', default=None)
 
-class CheekModel(PartModel, PartShape):
-    color:         RGBColor | None = Field(description='cheek color', default=None)
-    outline_width: float | None    = Field(description='outline of cheek, to blur with body color', ge=0, le=15, default=None, examples=[3])
-
 class GhostArmModel(BaseModel):
     rotation:  float | None = Field(description='rotation in degrees', ge=-180, le=180, default=None, examples=[0])
     length:    float        = Field(description="height in percent of size", default=0.5, examples=[0.5])
     thickness: float        = Field(description="width in percent of size", default=0.5, examples=[0.5])
 
+class FrogCheekModel(BaseModel):
+    radius:        float | None    = Field(description='radius of the cheek', ge=0, default=None)
+    color:         RGBColor | None = Field(description='color of the cheek', default=None)
+    outline_width: float | None    = Field(description='outline width of the cheek', ge=0, default=None)
+
 class CharacterBodyModel(BaseModel):
     left_eye_position:    PartPosition | None = Field(description='position of the left eye', default=None)
     right_eye_position:   PartPosition | None = Field(description='position of the right eye', default=None)
-    left_cheek_position:  PartPosition | None = Field(description='position of the left cheek', default=None)
-    right_cheek_position: PartPosition | None = Field(description='position of the right cheek', default=None)
     nose_position:        PartPosition | None = Field(description='position of the nose', default=None)
     mouth_position:       PartPosition | None = Field(description='position of the mouse', default=None)
     hat_position:         PartPosition | None = Field(description='position of the hat', default=None)
@@ -95,10 +94,14 @@ class CharacterBodyModel(BaseModel):
     outline_color:        RGBColor | None     = Field(description='color of the outline of the body', default=None)
 
 class FrogBodyModel(CharacterBodyModel):
-    left_eye_shape:  PartShape | None = Field(description='shape of the left eye', default=None)
-    right_eye_shape: PartShape | None = Field(description='shape of the right eye', default=None)
-    belly_shape:     PartShape | None = Field(description='shape of the belly', default=None)
-    belly_color:     RGBColor | None =  Field(description='color of the belly', default=None)
+    left_eye_shape:       PartShape | None      = Field(description='shape of the left eye', default=None)
+    right_eye_shape:      PartShape | None      = Field(description='shape of the right eye', default=None)
+    belly_shape:          PartShape | None      = Field(description='shape of the belly', default=None)
+    belly_color:          RGBColor | None       = Field(description='color of the belly', default=None)
+    left_cheek_position:  PartPosition | None   = Field(description='position of the left cheek', default=None)
+    right_cheek_position: PartPosition | None   = Field(description='position of the right cheek', default=None)
+    left_cheek:           FrogCheekModel | None = Field(description='left cheek', default=None)
+    right_cheek:          FrogCheekModel | None = Field(description='right cheek', default=None)
 
 class GhostBodyModel(CharacterBodyModel):
     leaf_number: int | None           = Field(description='number of small leaf at the bottom', ge=1, default=None)
@@ -116,8 +119,6 @@ class CharacterBaseModel(BaseModel):
     body:        CharacterBodyModel | None = Field(description='the body description', default=None)
     left_eye:    EyeModel | None           = Field(description='the left eye description', default=None)
     right_eye:   EyeModel | None           = Field(description='the right eye description', default=None)
-    left_cheek:  CheekModel | None         = Field(description='the left cheek description', default=None)
-    right_cheek: CheekModel | None         = Field(description='the right cheek description', default=None)
     nose:        NoseModel | None          = Field(description='the nose description', default=None)
     mouth:       MouthModel | None         = Field(description='the mouth description', default=None)
     hat:         HatModel | None           = Field(description='the hat description', default=None)

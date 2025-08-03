@@ -44,26 +44,18 @@ class GhostBody:
             "y": self.dy + self.height*(15/48 + self.data.nose_position.y/150)
         })
 
-        self.left_cheek_position = munch.Munch({
-            "x": self.width*(1/3 + self.data.right_cheek_position.x/30),
-            "y": self.dy + self.height*(1/3 + self.data.right_cheek_position.y/20)
-        })
-        self.right_cheek_position = munch.Munch({
-            "x": self.width*(2/3 + self.data.left_cheek_position.x/30),
-            "y": self.dy + self.height*(1/3 + self.data.left_cheek_position.y/20)
-        })
         self.hat_position = munch.Munch({
             "x": self.width*(1/2 + self.data.hat_position.x/40),
             "y": self.dy + self.height*(4/20 + self.data.hat_position.y/80)
         })
 
-        self.shape = [
-                            (self.width*(5/20 + self.data.shape.width/20),
-                             self.dy + self.height*(4/20 + self.data.shape.height/20),
-                             self.width*(15/20 - self.data.shape.width/20),
-                             self.dy + self.height*1.2
-                            )
-                        ]
+        self.shape = [(
+            self.width*(5/20 + self.data.shape.width/20),
+            self.dy + self.height*(4/20 + self.data.shape.height/20),
+            self.width*(15/20 - self.data.shape.width/20),
+            self.dy + self.height*1.2
+        )]
+
         self.leaf_number = self.data.leaf_number
         self.leaf_space = round(self.data.leaf_space * self.leaf_number)
         

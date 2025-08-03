@@ -49,12 +49,8 @@ class Character():
 
         body_color = self.rd_color(255//2, 255)
         body_outline_color = self.rd_color(255//2, 255)
-        cheeks_color = tuple( [ min(255 ,max(0 ,x+self.rdg.integers(-40, 40))) for x in body_color ] )
         nose_color = tuple( [ min(255 ,max(0 ,x+self.rdg.integers(30, 60)*self.rdg.choice([-1, 1]))) for x in body_color ] )
         nose_stroke_width = self.rd(0.05, 0.1)
-
-        cheecks_x, cheecks_y = self.rd(), self.rd()
-        cheeks_outline_width = self.rd(0, 1)
 
         mouth = self.rdg.integers(0, len(glob.glob('./api/res/mouths/*.png')))
         hat = self.rdg.integers(0, len(glob.glob('./api/res/hats/*.png')))
@@ -64,8 +60,6 @@ class Character():
             body=CharacterBodyModel(
                 left_eye_position=PartPosition(x=eyes_x, y=eyes_y),
                 right_eye_position=PartPosition(x=-eyes_x, y=eyes_y),
-                left_cheek_position=PartPosition(x=cheecks_x, y=cheecks_y),
-                right_cheek_position=PartPosition(x=-cheecks_x, y=cheecks_y),
                 nose_position=PartPosition(x=0, y=self.rd()),
                 mouth_position=PartPosition(x=0, y=self.rd()),
                 hat_position=PartPosition(x=self.rd(), y=self.rd()),
@@ -90,22 +84,6 @@ class Character():
                 ratio=1,
                 rotation=0,
                 flip=False,
-            ),
-            left_cheek=CheekModel(
-                color=cheeks_color,
-                outline_width=cheeks_outline_width,
-                ratio=1,
-                rotation=0,
-                flip=False,
-                stroke_width=1/100
-            ),
-            right_cheek=CheekModel(
-                color=cheeks_color,
-                outline_width=cheeks_outline_width,
-                ratio=1,
-                rotation=0,
-                flip=False,
-                stroke_width=1/100
             ),
             mouth=MouthModel(
                 model_number=mouth,

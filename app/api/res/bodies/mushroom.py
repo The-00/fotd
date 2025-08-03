@@ -43,46 +43,35 @@ class MushroomBody:
             "y": self.height*(54/100 + self.data.nose_position.y/50)
         })
 
-        self.left_cheek_position = munch.Munch({
-            "x": self.width*(4/10 + self.data.right_cheek_position.x/30),
-            "y": self.height*(60/100 + self.data.right_cheek_position.y/20)
-        })
-        self.right_cheek_position = munch.Munch({
-            "x": self.width*(6/10 + self.data.left_cheek_position.x/30),
-            "y": self.height*(60/100 + self.data.left_cheek_position.y/20)
-        })
-
         self.hat_position = munch.Munch({
             "x": self.width*(1/2 + self.data.hat_position.x/20),
             "y": self.height*(1/5 + self.data.hat_position.y/40)
         })
 
 
-        self.shape = [
-                        (self.width*(4/10 + self.data.shape.width/25),
-                            self.height*(1/3 + self.data.shape.height/20),
-                            self.width*(5/10 - self.data.shape.width/25),
-                            self.height*4/6 + self.height/10
-                        ),
-                        (self.width*(5/10 + self.data.shape.width/25),
-                            self.height*(1/3 + self.data.shape.height/20),
-                            self.width*(6/10 - self.data.shape.width/25),
-                            self.height*4/6 + self.height/10
-                        )
-                    ]
+        self.shape = [(
+            self.width*(4/10 + self.data.shape.width/25),
+            self.height*(1/3 + self.data.shape.height/20),
+            self.width*(5/10 - self.data.shape.width/25),
+            self.height*4/6 + self.height/10
+            ),(
+            self.width*(5/10 + self.data.shape.width/25),
+            self.height*(1/3 + self.data.shape.height/20),
+            self.width*(6/10 - self.data.shape.width/25),
+            self.height*4/6 + self.height/10
+        )]
 
-        self.mushroom_hat_shape = [
-                        (self.width*(1/8 + self.data.mushroom_hat_shape.width/20),
-                            self.height*(1/6 + self.data.mushroom_hat_shape.height/20),
-                            self.width*(7/8 - self.data.mushroom_hat_shape.width/20),
-                            self.height/2
-                        ),
-                        (self.width*(1/8 + self.data.mushroom_hat_shape.width/20),
-                            self.height*(1/3 + self.data.mushroom_hat_shape.height/40) - self.height/10,
-                            self.width*(7/8 - self.data.mushroom_hat_shape.width/20),
-                            self.height*(1/3 + self.data.mushroom_hat_shape.height/40) + self.height/10
-                        )
-                    ]
+        self.mushroom_hat_shape = [(
+            self.width*(1/8 + self.data.mushroom_hat_shape.width/20),
+            self.height*(1/6 + self.data.mushroom_hat_shape.height/20),
+            self.width*(7/8 - self.data.mushroom_hat_shape.width/20),
+            self.height/2
+            ),(
+            self.width*(1/8 + self.data.mushroom_hat_shape.width/20),
+            self.height*(1/3 + self.data.mushroom_hat_shape.height/40) - self.height/10,
+            self.width*(7/8 - self.data.mushroom_hat_shape.width/20),
+            self.height*(1/3 + self.data.mushroom_hat_shape.height/40) + self.height/10
+        )]
 
     def get(self):
 
@@ -132,22 +121,7 @@ class MushroomBody:
             self.draw.ellipse(eye_bbox, fill=self.data.color.as_rgb_tuple())
 
         mask = self.im.copy()
-        
-        # cheeks
-        # radius = self.width *(1/15 - self.data["cheeks"]["radius"]/20)
-        # color_cheek = tuple(self.data["cheeks"]["color"])
-        # width_outline_cheek = self.data["cheeks"]["outline_width"]
 
-        # bg = Image.new("RGBA", self.im.size, (color_cheek[0], color_cheek[1], color_cheek[2], 0))
-        # bg_draw = ImageDraw.Draw(bg)
-
-        # for posX,posY in self.posCheeks:
-        #     bbox =  (posX - radius/2, posY - radius/2, posX + radius/2, posY + radius/2)
-        #     bg_draw.ellipse(bbox, fill=color_cheek)
-
-        # bg = bg.filter(ImageFilter.GaussianBlur(radius = width_outline_cheek))
-        # self.im.alpha_composite(bg)
-        
         new_im = Image.new("RGBA", self.im.size, "#0000")
         new_im.paste(self.im, mask=mask)
         self.im = new_im
