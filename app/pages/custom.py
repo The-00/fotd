@@ -66,10 +66,10 @@ async def custom(mode:CharacterList,  data:CharacterModel, seed:str=""):
 
             with ui.expansion('Advanced').classes('w-full m-auto text-3xl w-4/5 text-red-400 text-center h-4/5'):
                 schema = CharacterModel.model_json_schema(by_alias=True)
-                data_input = ui.json_editor({'content': {'json': json.loads(data.model_dump_json())}},
-                    on_change=lambda e: change_image(mode_input, seed_input, data_input, character_image, reset=False),
-                    schema=schema)\
-                    .classes('m-auto text-3xl w-4/5 text-red-400 max-h-full h-full')
+                with ui.column().classes("m-auto w-full h-screen overflow-scroll"):
+                    data_input = ui.json_editor({'content': {'json': json.loads(data.model_dump_json())}},
+                        on_change=lambda e: change_image(mode_input, seed_input, data_input, character_image, reset=False),
+                        schema=schema).classes("w-full").style("max-height:40vh")
 
 
     title = f'FOTD | {mode.value}'
