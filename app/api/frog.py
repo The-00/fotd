@@ -37,6 +37,8 @@ class Frog(api.character.Character):
             body=FrogBodyModel(
                 left_eye_shape=PartShape(width=eyes_shape_width, height=eyes_shape_height),
                 right_eye_shape=PartShape(width=eyes_shape_width, height=eyes_shape_height),
+                belly_shape=PartShape(width=self.rd(1,2), height=self.rd(0.5,1.2)),
+                belly_color=tuple( [ min(255 ,max(0 ,x+self.rdg.integers(-40, 40))) for x in self.data.body.color.as_rgb_tuple() ] )
             )
         )
 

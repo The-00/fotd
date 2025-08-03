@@ -54,18 +54,24 @@ class FrogBody:
             "y": self.height*(1/3 + self.data.hat_position.y/40)
         })
 
-        self.shape = [
-                        (self.width*(1/6 + self.data.shape.width/20),
-                            self.height*(1/3 + self.data.shape.height/20),
-                            self.width*(5/6 - self.data.shape.width/20),
-                            self.height
-                        ),
-                        (self.width*(1/6 + self.data.shape.width/20),
-                            self.height*4/6 - self.height/10,
-                            self.width*(5/6 - self.data.shape.width/20),
-                            self.height*4/6 + self.height/10
-                            )
-                        ]
+        self.shape = [(
+            self.width*(1/6 + self.data.shape.width/20),
+            self.height*(1/3 + self.data.shape.height/20),
+            self.width*(5/6 - self.data.shape.width/20),
+            self.height
+            ),(
+            self.width*(1/6 + self.data.shape.width/20),
+            self.height*4/6 - self.height/10,
+            self.width*(5/6 - self.data.shape.width/20),
+            self.height*4/6 + self.height/10
+        )]
+        
+        self.belly_shape = (
+            self.width*(1/6 + self.data.belly_shape.width/20),
+            self.mouth_position.y + self.height*(self.data.belly_shape.height/10),
+            self.width*(5/6 - self.data.belly_shape.width/20),
+            self.height
+            )
 
     def get(self):
 
@@ -101,6 +107,9 @@ class FrogBody:
         # bg = bg.filter(ImageFilter.GaussianBlur(radius = width_outline_cheek))
         # self.im.alpha_composite(bg)
         
+
+        self.draw.ellipse(self.belly_shape, fill=self.data.belly_color.as_rgb_tuple())
+
         new_im = Image.new("RGBA", self.im.size, "#0000")
         new_im.paste(self.im, mask=mask)
         self.im = new_im

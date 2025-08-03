@@ -97,6 +97,8 @@ class CharacterBodyModel(BaseModel):
 class FrogBodyModel(CharacterBodyModel):
     left_eye_shape:  PartShape | None = Field(description='shape of the left eye', default=None)
     right_eye_shape: PartShape | None = Field(description='shape of the right eye', default=None)
+    belly_shape:     PartShape | None = Field(description='shape of the belly', default=None)
+    belly_color:     RGBColor | None =  Field(description='color of the belly', default=None)
 
 class GhostBodyModel(CharacterBodyModel):
     leaf_number: int | None           = Field(description='number of small leaf at the bottom', ge=1, default=None)
