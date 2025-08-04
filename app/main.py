@@ -2,6 +2,7 @@ from nicegui import ui, app, Client
 from fastapi import Request, Response, Query, Depends
 from fastapi.responses import StreamingResponse
 from fastapi.exceptions import RequestValidationError
+from pydantic import Json
 import os, io
 
 import api.actions
@@ -47,15 +48,23 @@ def get_frog_of_the_day_data(date=None, size:int=750) -> StreamingResponse:
     return fotd.data
 
 @app.get('/api/{mode}/{seed:path}', tags=["character"])
-def get_image(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+def get_image(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
     if not data: data=api.res.models.CharacterModel()
+    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
+    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
+    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
+
     character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
     image = character.get(size)
     return _stream_image(image, character.name)
 
 @app.options('/api/{mode}/{seed:path}', tags=["character"])
-def get_data(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
+def get_data(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
     if not data: data=api.res.models.CharacterModel()
+    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
+    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
+    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
+    
     character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
     return character.data
 
@@ -85,8 +94,11 @@ async def favorites():
 @ui.page("/custom")
 @ui.page("/custom/{mode}")
 @ui.page("/custom/{mode}/{seed:path}")
-async def get_image(seed:str="", data:api.res.models.CharacterModel=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750):
+async def get_image(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750):
     if not data: data=api.res.models.CharacterModel()
+    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
+    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
+    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
     with header():
         await pages.custom.custom(mode=mode, seed=seed, data=data)
     footer()
@@ -104,7 +116,7 @@ async def app_exception_handler_500(request: Request, exception: Exception) -> R
     return exception_handler_500(request, exception)
 
 @ui.page('/')
-@ui.page('/{date:path}')
+@ui.page('/{date}')
 async def main(date:str=None):
     with header():
         pages.fotd.fotd(date)

@@ -26,7 +26,7 @@ def header():
                     with ui.menu_item(None, lambda:ui.navigate.to("/api")):
                         ui.button("API", icon="api").props(f'flat color={main_color()}').classes('bg-red-400 w-full font-mono')
                     
-    content = ui.row().classes('flex w-full justify-center m-0 overflow-hidden').style("height:72vh;")
+    content = ui.row().classes('flex w-full justify-center m-0 overflow-scroll md:overflow-hidden').style("height:72vh;")
     return content
     
 

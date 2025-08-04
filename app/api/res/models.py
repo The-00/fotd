@@ -123,6 +123,8 @@ class CharacterBaseModel(BaseModel):
     mouth:       MouthModel | None         = Field(description='the mouth description', default=None)
     hat:         HatModel | None           = Field(description='the hat description', default=None)
 
+    def __hash__(self) -> int:
+        return self.model_dump_json().__hash__()
 class FrogModel(CharacterBaseModel):
     body: FrogBodyModel | None = Field(description='the frog body description', default=None)
 
@@ -141,9 +143,6 @@ class CharacterModel(FrogModel, GhostModel, MushroomModel):
             except json.JSONDecodeError:
                 pass
         return v
-
-    def __hash__(self) -> int:
-        return self.model_dump_json().__hash__()
 
 
 class DiffModel(BaseModel):
