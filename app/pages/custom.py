@@ -9,7 +9,7 @@ import json
 import urllib.parse
 
 # on profite que l'app soit monolitique
-from api.res.models import CharacterModel
+from api.res.models import CharacterModel, FrogModel, GhostModel, MushroomModel
 from api.actions import api_character, CharacterList, api_url
 
 async def generate_random(seed_input, data_input, character_image, mode_input):
@@ -30,20 +30,26 @@ async def update_browser(mode, seed, data="{}"):
     ui.navigate.history.push('/custom/' + url)
     balises(title, '/api' + url, '/custom' + url)
 
+def _model(mode:CharacterList, data:dict):
+    if mode == CharacterList.frog: return FrogModel(**data)
+    if mode == CharacterList.ghost: return GhostModel(**data)
+    if mode == CharacterList.mushroom: return MushroomModel(**data)
+
 @debounce(wait=.5, options=DebounceOptions(trailing=True, leading=False, time_window=3))
 async def change_image(mode_input, seed_input, data_input, element, reset=True):
     mode = CharacterList(mode_input.value)
     seed = seed_input.value
     data = (await data_input.run_editor_method("get"))["json"]
+    model =  _model(mode, data)
     element.clear()
 
     if reset:
         data = {}
 
     with element:
-        character_element(mode, seed, CharacterModel(**data)).classes(remove="md:w-1/2")
-        character_json = json.loads(api_character(seed=seed, mode=mode, data=CharacterModel(**data)).data.model_dump_json())
-        url_data = api_url(seed=seed, mode=mode, data=CharacterModel(**data))
+        character_element(mode, seed, model).classes(remove="md:w-1/2")
+        character_json = json.loads(api_character(seed=seed, mode=mode, data=model).data.model_dump_json())
+        url_data = api_url(seed=seed, mode=mode, data=model)
         data_input.run_editor_method("update", {'json': character_json})
         await update_browser(mode, seed, url_data.data)
 
@@ -64,9 +70,9 @@ async def custom(mode:CharacterList,  data:CharacterModel, seed:str=""):
                 .classes('m-auto text-3xl text-red-400') \
                 .props(f"filled toggle-text-color={main_color()} toggle-color=red-400")
 
-            with ui.expansion('Advanced').classes('w-full m-auto text-3xl w-4/5 text-red-400 text-center h-4/5'):
+            with ui.expansion('Advanced', icon="tune").classes('w-full m-auto text-3xl w-4/5 text-red-400 dark:text-red-400 text-center h-4/5').props("dark=false"):
                 schema = CharacterModel.model_json_schema(by_alias=True)
-                with ui.column().classes("m-auto w-full h-screen overflow-scroll"):
+                with ui.column().classes("m-auto w-full overflow-scroll"):
                     data_input = ui.json_editor({'content': {'json': json.loads(data.model_dump_json())}},
                         on_change=lambda e: change_image(mode_input, seed_input, data_input, character_image, reset=False),
                         schema=schema).classes("w-full").style("max-height:40vh")
