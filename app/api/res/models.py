@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field, Json, model_validator
+from pydantic import BaseModel, Field, Json, model_validator, ValidationError, TypeAdapter
 from enum import Enum
 from pydantic.color import Color
-from typing import Union
+from typing import Union, get_origin
 import glob
 import json
+from api.lib.models import recursive_model_validate, cast_model
 
 from pydantic.json_schema import JsonSchemaValue
 
@@ -115,7 +116,7 @@ class MushroomBodyModel(CharacterBodyModel):
     left_eye_shape:     PartShape | None = Field(description='shape of the left eye', default=None)
     right_eye_shape:    PartShape | None = Field(description='shape of the right eye', default=None)
 
-class CharacterBaseModel(BaseModel):
+class CharacterModel(BaseModel):
     body:        CharacterBodyModel | None = Field(description='the body description', default=None)
     left_eye:    EyeModel | None           = Field(description='the left eye description', default=None)
     right_eye:   EyeModel | None           = Field(description='the right eye description', default=None)
@@ -125,25 +126,30 @@ class CharacterBaseModel(BaseModel):
 
     def __hash__(self) -> int:
         return self.model_dump_json().__hash__()
-class FrogModel(CharacterBaseModel):
-    body: FrogBodyModel | None = Field(description='the frog body description', default=None)
-
-class GhostModel(CharacterBaseModel):
-    body: GhostBodyModel | None = Field(description='the ghost body description', default=None)
-
-class MushroomModel(CharacterBaseModel):
-    body: MushroomBodyModel | None = Field(description='the mushroom body description', default=None)
-
-class CharacterModel(FrogModel, GhostModel, MushroomModel):
+    
     @model_validator(mode='before')
     def parse_json(cls, v):
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                vv = json.loads(v)
+                return cls.model_validate(vv)
             except json.JSONDecodeError:
                 pass
         return v
+class FrogModel(CharacterModel):
+    body: FrogBodyModel | None = Field(description='the frog body description', default=None)
 
+class GhostModel(CharacterModel):
+    body: GhostBodyModel | None = Field(description='the ghost body description', default=None)
+
+class MushroomModel(CharacterModel):
+    body: MushroomBodyModel | None = Field(description='the mushroom body description', default=None)
+
+AllCharacterModel = Union[
+    FrogModel,
+    GhostModel,
+    MushroomModel
+] | None
 
 class DiffModel(BaseModel):
     @classmethod

@@ -17,7 +17,7 @@ async def generate_random(seed_input, data_input, character_image, mode_input):
     seed = names.get_full_name()
 
     seed_input.set_value(seed)
-    await change_image(mode_input, seed_input, data_input, character_image)
+    await change_image(mode_input, seed_input, data_input, character_image, True)
 
 async def update_browser(mode, seed, data="{}"):
     title = f'FOTD | {mode.value} | {seed}'
@@ -39,12 +39,19 @@ def _model(mode:CharacterList, data:dict):
 async def change_image(mode_input, seed_input, data_input, element, reset=True):
     mode = CharacterList(mode_input.value)
     seed = seed_input.value
-    data = (await data_input.run_editor_method("get"))["json"]
-    model =  _model(mode, data)
-    element.clear()
-
+    data = {}
+    t=0
+    while data == {} and t<10:
+        try:
+            data = (await data_input.run_editor_method("get"))["json"]
+        except Exception as e:
+            print(t)
+            t += 1
     if reset:
         data = {}
+
+    model =  _model(mode, data)
+    element.clear()
 
     with element:
         character_element(mode, seed, model).classes(remove="md:w-1/2")
@@ -71,7 +78,7 @@ async def custom(mode:CharacterList,  data:CharacterModel, seed:str=""):
                 .props(f"filled toggle-text-color={main_color()} toggle-color=red-400")
 
             with ui.expansion('Advanced', icon="tune").classes('w-full m-auto text-3xl w-4/5 text-red-400 dark:text-red-400 text-center h-4/5').props("dark=false"):
-                schema = CharacterModel.model_json_schema(by_alias=True)
+                schema = data.model_json_schema(by_alias=True)
                 with ui.column().classes("m-auto w-full overflow-scroll"):
                     data_input = ui.json_editor({'content': {'json': json.loads(data.model_dump_json())}},
                         on_change=lambda e: change_image(mode_input, seed_input, data_input, character_image, reset=False),

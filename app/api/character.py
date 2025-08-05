@@ -16,7 +16,7 @@ class Character():
         Generate a character (tooling class)
     '''
 
-    def __init__(self, name=None, size=1000, seed=None, data:CharacterModel=CharacterBaseModel()):
+    def __init__(self, name=None, size=1000, seed=None, data:CharacterModel=CharacterModel()):
         if type(seed) == str and len(seed) > 0 and seed != "random":
             seed = int("".join([str(ord(c)) for c in seed]))
             self.rdg = random.default_rng( seed % (2**32-1) )
@@ -56,7 +56,7 @@ class Character():
         hat = self.rdg.integers(0, len(glob.glob('./api/res/hats/*.png')))
         nose = self.rdg.choice(NoseModelList)
  
-        seeded_data = CharacterBaseModel(
+        seeded_data = CharacterModel(
             body=CharacterBodyModel(
                 left_eye_position=PartPosition(x=eyes_x, y=eyes_y),
                 right_eye_position=PartPosition(x=-eyes_x, y=eyes_y),

@@ -47,26 +47,24 @@ def get_frog_of_the_day_data(date=None, size:int=750) -> StreamingResponse:
     fotd = api.actions.api_fotd(date, size)
     return fotd.data
 
-@app.get('/api/{mode}/{seed:path}', tags=["character"])
-def get_image(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
-    if not data: data=api.res.models.CharacterModel()
-    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
-    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
-    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
+characters_api = [
+    (api.actions.CharacterList.frog, api.actions.FrogModel),
+    (api.actions.CharacterList.ghost, api.actions.GhostModel),
+    (api.actions.CharacterList.mushroom, api.actions.MushroomModel),
+]
+for mode_value, mode_type in characters_api:
+    @app.get('/api/'+mode_value.value+'/{seed:path}', tags=["character"], name=f"Get {mode_value.value} image")
+    def get_image(seed:str="", data:mode_type=Query(None), size:int=750, mode:api.actions.CharacterList=mode_value) -> StreamingResponse:
+        if not data: data = mode_type()
+        character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
+        image = character.get(size)
+        return _stream_image(image, character.name)
 
-    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
-    image = character.get(size)
-    return _stream_image(image, character.name)
-
-@app.options('/api/{mode}/{seed:path}', tags=["character"])
-def get_data(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750) -> StreamingResponse:
-    if not data: data=api.res.models.CharacterModel()
-    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
-    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
-    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
-    
-    character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
-    return character.data
+    @app.options('/api/'+mode_value.value+'/{seed:path}', tags=["character"], name=f"Get {mode_value.value} data")
+    def get_data(seed:str="", data:mode_type=Query(None), size:int=750, mode:api.actions.CharacterList=mode_value) -> StreamingResponse:
+        if not data: data = mode_type()
+        character = api.actions.api_character(seed=seed, mode=mode, size=size, data=data)
+        return character.data
 
 ## Pages
 
@@ -95,10 +93,14 @@ async def favorites():
 @ui.page("/custom/{mode}")
 @ui.page("/custom/{mode}/{seed:path}")
 async def get_image(seed:str="", data:Json=Query(None), mode:api.actions.CharacterList=api.actions.CharacterList.frog, size:int=750):
-    if not data: data=api.res.models.CharacterModel()
-    if mode == api.actions.CharacterList.frog:     data = api.res.models.FrogModel(**data)
-    if mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**data)
-    if mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**data)
+    try:
+        if data and mode == api.actions.CharacterList.frog:       data = api.res.models.FrogModel(**{key: value for key, value in data.items() if key in api.res.models.FrogModel.model_fields.keys()})
+        elif data and mode == api.actions.CharacterList.ghost:    data = api.res.models.GhostModel(**{key: value for key, value in data.items() if key in api.res.models.GhostModel.model_fields.keys()})
+        elif data and mode == api.actions.CharacterList.mushroom: data = api.res.models.MushroomModel(**{key: value for key, value in data.items() if key in api.res.models.MushroomModel.model_fields.keys()})
+        else:                                                     data = api.res.models.CharacterModel()
+    except Exception as e:
+        raise RequestValidationError(e)
+
     with header():
         await pages.custom.custom(mode=mode, seed=seed, data=data)
     footer()

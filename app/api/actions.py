@@ -3,7 +3,7 @@ from api.ghost import Ghost
 from api.mushroom import Mushroom
 from functools import lru_cache
 from fastapi.responses import StreamingResponse
-from api.res.models import CharacterModel, GhostModel, MushroomModel, FrogModel, CharacterBaseModel, DiffModel
+from api.res.models import CharacterModel, GhostModel, MushroomModel, FrogModel, DiffModel, AllCharacterModel
 import munch
 
 import datetime, time, io, re, os, enum
@@ -45,10 +45,10 @@ def api_fotd(date=None, size:int=750):
     return get_character(size=size, seed=fotd_seed, name=fotd_name)
 
 
-def api_character(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
+def api_character(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterModel()):
     return get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode, data=data)
 
-def api_url(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
+def api_url(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterModel()):
     character_seeded = get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode)
     character_dataed = get_character(size=size, seed=seed, name=f"{mode.value} - {seed}", mode=mode, data=data)
     
@@ -57,7 +57,7 @@ def api_url(size:int=750, seed="random", mode:CharacterList=CharacterList.frog, 
     return munch.Munch({"seed": seed, "data":character_diff.model_dump_json(exclude_unset=True), "mode": mode.value})
 
 @lru_cache()
-def get_character(size:int, seed:str, name:str=None, mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterBaseModel()):
+def get_character(size:int, seed:str, name:str=None, mode:CharacterList=CharacterList.frog, data:CharacterModel=CharacterModel()):
     if mode:
         if mode == CharacterList.ghost:
             return Ghost(size=size, seed=seed, name=name, data=GhostModel(**data.model_dump()))
