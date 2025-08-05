@@ -28,7 +28,6 @@ async def update_browser(mode, seed, data="{}"):
     
     ui.page_title(title)
     ui.navigate.history.push('/custom/' + url)
-    balises(title, '/api' + url, '/custom' + url)
 
 def _model(mode:CharacterList, data:dict):
     if mode == CharacterList.frog: return FrogModel(**data)
@@ -45,7 +44,6 @@ async def change_image(mode_input, seed_input, data_input, element, reset=True):
         try:
             data = (await data_input.run_editor_method("get"))["json"]
         except Exception as e:
-            print(t)
             t += 1
     if reset:
         data = {}
@@ -85,7 +83,7 @@ async def custom(mode:CharacterList,  data:CharacterModel, seed:str=""):
                         schema=schema).classes("w-full").style("max-height:40vh")
 
 
-    title = f'FOTD | {mode.value}'
+    title = f'{mode.value}'
     url   = f"{urllib.parse.quote( mode.value , safe='')}"
     if seed != "":
         title += f" | {seed}"
